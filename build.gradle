@@ -9,6 +9,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'org.springframework.boot' version '2.3.4.RELEASE'
+    id "org.sonarqube" version "3.4.0.2513"
 }
 
 repositories {
@@ -33,6 +34,18 @@ group = 'com.devopsusach2020'
 version = '0.0.1'
 description = 'DevOpsUsach2020'
 java.sourceCompatibility = JavaVersion.VERSION_1_8
+
+//create a single Jar with all dependencies
+task packageJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File',
+                'Implementation-Version': version,
+                'Main-Class': 'com.devopsusach2020.DevOpsUsach2020Application'
+    }
+    baseName = project.name
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
 
 publishing {
     publications {
