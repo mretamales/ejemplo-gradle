@@ -46,7 +46,7 @@ pipeline {
                         if(isUnix()) {
                             echo 'Unix OS'
                             echo 'Running in progress.....'
-                            sh './gradlew bootRun'
+                            sh 'nohup sh startup.sh &'
                             echo 'Testing in progress.....'
                             response = sh """\$(curl --write-out '%{http_code}' --silent --output /dev/null 'http://localhost:8081/rest/mscovid/test?msg=testing')""";
                             if (response != '200') {
