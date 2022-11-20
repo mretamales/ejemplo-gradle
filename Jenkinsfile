@@ -12,6 +12,7 @@ pipeline {
                 script {
                     if(isUnix()) {
                         echo 'Unix OS'
+                        sh "chmod +x gradlew"
                         sh './gradlew clean build'
                     } else {
                         echo 'Windows OS'
