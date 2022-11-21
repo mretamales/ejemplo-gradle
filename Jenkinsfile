@@ -47,18 +47,21 @@ pipeline {
                         if(isUnix()) {
                             echo 'Unix OS'
                             echo 'Running in progress.....'
-                            sh 'nohup sh startup.sh &'
+                            sh './gradlew bootRun'
+                            sh 'sleep 5'
                             echo 'Testing in progress.....'
-                            response = sh """\$(curl --write-out '%{http_code}' --silent --output /dev/null 'http://localhost:8081/rest/mscovid/test?msg=testing')""";
-                            if (response != '200') {
+                            def response = sh(script: "echo \$(curl --write-out '%{http_code}' --silent --output /dev/null http://localhost:8081/rest/mscovid/test?msg=testing)", returnStdout: true);
+                            echo "${response}"
+                            if (response.trim() != 200) {
                                 sh 'exit 1'
                             }
                         } else {
                             echo 'Windows OS'
                             bat 'gradlew bootRun'
-                            response= bat """\$(curl --write-out '%{http_code}' --silent --output /dev/null 'http://localhost:8081/rest/mscovid/test?msg=testing')""";
-                            if (response != '200') {
-                                bat 'exit 1'
+                            bat 'timeout /t 5'
+                            response = bat """\$(curl --write-out '%{http_code}' --silent --output /dev/null 'http://localhost:8081/rest/mscovid/test?msg=testing')""";
+                            if (response.trim() != 200) {
+                                bat 'exit /b 1'
                             }
                         }
                         echo '.....Sonar scan completed'
@@ -94,10 +97,10 @@ pipeline {
                                         extension: '',
                                         filePath: artifactPath]],
                                     mavenCoordinate:
-                                        [artifactId: gradleBuild['project']['name'],
-                                        groupId: gradleBuild['group'],
+                                        [artifactId: 'DevOpsUsach2020',
+                                        groupId: 'com.devopsusach2020',
                                         packaging: gradlePackaging,
-                                        version: gradleBuild['version']]
+                                        version: '0.0.1']
                                  ]
                             ]
                         )
@@ -115,10 +118,10 @@ pipeline {
                     script {
                         echo "Downloading artifact from nexus"
                         gradleBuild = readProperties file: "gradle.build";
-                        gradleVersion = gradleBuild['version'];
+                        gradleVersion = '0.0.1';
                         gradlePackaging = "jar";
-                        groupId = gradleBuild['group'];
-                        gradleArtifactId = gradleBuild['project']['name'];
+                        groupId = 'com.devopsusach2020';
+                        gradleArtifactId = 'DevOpsUsach2020';
                         echo """${gradleBuild['group']}""";
                         groupIdPath = groupId.replace(".", "/");
                         echo """${groupIdPath}""";
