@@ -4,11 +4,15 @@
 	ejecucion.call()
 */
 
-def callMavenPipeline(){
-    stage() {
-        //Escribir directamente el código del stage, sin agregarle otra clausula de Jenkins.
+def callMavenPipeline() {
+    if(isUnix()) {
+        echo 'Unix OS'
+        sh "chmod +x mvnw"
+        sh './mvnw clean compile -e'
+    } else {
+        echo 'Windows OS'
+        bat 'mvnw clean compile -e'
     }
-
 }
 
 return this;

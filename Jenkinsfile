@@ -1,4 +1,6 @@
 def gradle_script
+def maven_script
+
 pipeline {
     agent any
      environment {
@@ -14,10 +16,11 @@ pipeline {
             steps {
                 script {
                     gradle_script = load 'gradle.groovy';
+                    maven_script = load 'maven.groovy';
                 }
             }
         }
-        stage('Build & Test') {
+        stage('Build & Test (Gradle)') {
             when {
                 expression {
                     params.Dependencies_Builder == 'gradle'
@@ -26,6 +29,18 @@ pipeline {
             steps {
                 script {
                     gradle_script.callGradlePipeline();
+                }
+            }
+        }
+        stage('Build & Test (Maven)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'maven'
+                }
+            }
+            steps {
+                script {
+                    maven_script.callMavenPipeline();
                 }
             }
         }
