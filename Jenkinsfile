@@ -7,18 +7,20 @@ pipeline {
         NEXUS_SERVER = "nexus:8081"
     }
     parameters {
-        choice(name: 'Dependencies builder', choices: ['Maven', 'Gradle'], description: 'Pick builder tool')
+        choice(name: 'Dependencies_Builder', choices: ['maven', 'gradle'], description: 'Select builder tool: ')
     }
     stages {
         stage('Load Scripts') {
             steps {
-                gradle_script = load 'gradle.groovy';
+                script {
+                    gradle_script = load 'gradle.groovy';
+                }
             }
         }
         stage('Build & Test') {
             when {
-                expression{
-                    params.name == 'Gradle';
+                expression {
+                    params.Dependencies_Builder == 'gradle'
                 }
             }
             steps {
