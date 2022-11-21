@@ -14,7 +14,18 @@ def buildStep() {
         bat 'gradlew clean build'
     }
 }
-
+def sonarStep() {
+    if(isUnix()) {
+        echo 'Unix OS'
+        sh './gradlew sonarqube \
+             -Dsonar.projectKey=ejemplo-gradle'
+    } else {
+        echo 'Windows OS'
+        bat 'gradlew sonarqube \
+            -Dsonar.projectKey=ejemplo-gradle'
+    }
+    echo '.....Sonar scan completed'
+}
 def runAndTestStep() {
     if(isUnix()) {
         echo 'Unix OS'
@@ -41,7 +52,6 @@ def runAndTestStep() {
     }
     echo '.....Running completed'
 }
-
 def callGradlePipelineTest() {
     stages {
         stage('Build & Test') {

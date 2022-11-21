@@ -44,6 +44,34 @@ pipeline {
                 }
             }
         }
+        stage('Sonar (Gradle)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'gradle'
+                }
+            }
+            steps {
+                withSonarQubeEnv(credentialsId: '22f7a5b8-3425-4d58-a9e9-2326e6749326', installationName: 'sonarqube') {
+                    script {
+                        gradle_script.sonarStep();
+                    }
+                }
+            }
+        }
+        stage('Sonar (Maven)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'maven'
+                }
+            }
+            steps {
+                withSonarQubeEnv(credentialsId: '22f7a5b8-3425-4d58-a9e9-2326e6749326', installationName: 'sonarqube') {
+                    script {
+                        maven_script.sonarStep();
+                    }
+                }
+            }
+        }
         stage('Run & Test (Gradle)') {
             when {
                 expression {

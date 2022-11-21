@@ -16,7 +16,18 @@ def buildStep() {
     }
     echo '.....Source code compilation completed'
 }
-
+def sonarStep() {
+    if(isUnix()) {
+        echo 'Unix OS'
+        sh './mvnw clean verify sonar:sonar \
+             -Dsonar.projectKey=example-maven2'
+    } else {
+        echo 'Windows OS'
+        bat 'mvnw clean verify sonar:sonar \
+            -Dsonar.projectKey=example-maven2'
+    }
+    echo '.....Sonar scan completed'
+}
 def runAndTestStep() {
     echo 'Source code packaging in progress.....'
     if(isUnix()) {
