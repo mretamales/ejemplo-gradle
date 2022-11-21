@@ -1,9 +1,3 @@
-/*
-	forma de invocación de método call:
-	def ejecucion = load 'script.groovy'
-	ejecucion.call()
-*/
-
 def buildStep() {
     if(isUnix()) {
         echo 'Unix OS'
