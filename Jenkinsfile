@@ -96,5 +96,59 @@ pipeline {
                 }
             }
         }
+        stage('Upload Nexus (Gradle)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'gradle'
+                }
+            }
+            steps {
+                script {
+                    gradle_script.uploadNexusStep();
+                }
+            }
+        }
+        stage('Upload Nexus (Maven)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'maven'
+                }
+            }
+            steps {
+                script {
+                    maven_script.uploadNexusStep();
+                }
+            }
+        }
+        stage('Download & Test Nexus (Gradle)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'gradle'
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'acd50057-3abc-4c5b-a062-758a404e0bb9',
+                        usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    script {
+                        gradle_script.downloadAndTestNexusStep();
+                    }
+                }
+            }
+        }
+        stage('Download & Test Nexus (Maven)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'maven'
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'acd50057-3abc-4c5b-a062-758a404e0bb9',
+                        usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    script {
+                        maven_script.downloadAndTestNexusStep();
+                    }
+                }
+            }
+        }
     }
  }

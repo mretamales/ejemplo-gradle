@@ -54,5 +54,53 @@ def runAndTestStep() {
     }
     echo '.....Running completed'
 }
-
+def uploadNexusStep() {
+    echo 'Uploading to nexus in progress.....'
+    pom = readMavenPom file: "pom.xml";
+    files = findFiles(glob: "build/*.${pom.packaging}");
+    echo """${files[0].name},
+            ${files[0].path},
+            ${files[0].directory},
+            ${files[0].length},
+            ${files[0].lastModified}"""
+    artifactPath = files[0].path;
+    artifactExists = fileExists artifactPath;
+    if(artifactExists) {
+        echo """File: ${artifactPath},
+                          group: ${pom.groupId},
+                          packaging: ${pom.packaging},
+                          version ${pom.version}"""
+        nexusPublisher(
+                nexusInstanceId: NEXUS_INSTANCE_ID,
+                nexusRepositoryId: NEXUS_REPOSITORY,
+                packages: [
+                    [
+                        $class: 'MavenPackage',
+                        mavenAssetList: [
+                                [classifier: '',
+                                 extension: '',
+                                 filePath: artifactPath]],
+                        mavenCoordinate:
+                                [artifactId: pom.artifactId,
+                                 groupId: pom.groupId,
+                                 packaging: pom.packaging,
+                                 version: pom.version]
+                    ]
+                ]
+        )
+        echo '.....Artifact Uploaded successfully'
+    } else {
+        error "File: ${artifactPath}, could not be found";
+    }
+}
+def downloadAndTestNexusStep() {
+    echo "Downloading artifact from nexus"
+    pom = readMavenPom file: "pom.xml";
+    groupId = pom.groupId;
+    echo """${pom.groupId}""";
+    groupIdPath = groupId.replace(".", "/");
+    echo """${groupIdPath}""";
+    sh """curl -X GET -u $USER:$PASS http://${env.NEXUS_SERVER}/repository/${env.NEXUS_REPOSITORY}/${groupIdPath}/${pom.artifactId}/${pom.version}/${pom.artifactId}-${pom.version}.${pom.packaging} -O"""
+    echo ".....artifact downloaded successfully"
+}
 return this;
