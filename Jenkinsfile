@@ -28,7 +28,7 @@ pipeline {
             }
             steps {
                 script {
-                    gradle_script.callGradlePipeline();
+                    gradle_script.buildStep();
                 }
             }
         }
@@ -40,7 +40,31 @@ pipeline {
             }
             steps {
                 script {
-                    maven_script.callMavenPipeline();
+                    maven_script.buildStep();
+                }
+            }
+        }
+        stage('Run & Test (Gradle)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'gradle'
+                }
+            }
+            steps {
+                script {
+                    gradle_script.runAndTestStep();
+                }
+            }
+        }
+        stage('Run & Test (Maven)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'maven'
+                }
+            }
+            steps {
+                script {
+                    maven_script.runAndTestStep();
                 }
             }
         }

@@ -4,7 +4,7 @@
 	ejecucion.call()
 */
 
-def callGradlePipeline() {
+def buildStep() {
     if(isUnix()) {
         echo 'Unix OS'
         sh "chmod +x gradlew"
@@ -13,6 +13,33 @@ def callGradlePipeline() {
         echo 'Windows OS'
         bat 'gradlew clean build'
     }
+}
+
+def runAndTestStep() {
+    if(isUnix()) {
+        echo 'Unix OS'
+        echo 'Running in progress.....'
+        sh './gradlew bootRun &'
+        sh 'sleep 5'
+        echo 'Testing in progress.....'
+        def response = sh(script: "echo \$(curl --write-out '%{http_code}' --silent --output /dev/null http://localhost:8081/rest/mscovid/test?msg=testing)", returnStdout: true);
+        if(response.trim() != '200') {
+            echo "status ${response}"
+            sh 'exit 1'
+        }
+        echo '.....Testing completed'
+    } else {
+        echo 'Windows OS'
+        bat 'gradlew bootRun'
+        bat 'timeout /t 5'
+        response = bat """\$(curl --write-out '%{http_code}' --silent --output /dev/null 'http://localhost:8081/rest/mscovid/test?msg=testing')""";
+        if (response.trim() != '200') {
+            echo "status ${response}"
+            bat 'exit /b 1'
+        }
+        echo '.....Testing completed'
+    }
+    echo '.....Running completed'
 }
 
 def callGradlePipelineTest() {
