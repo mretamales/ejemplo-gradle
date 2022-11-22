@@ -150,5 +150,11 @@ pipeline {
                 }
             }
         }
+        stage('notification') {
+            steps {
+               slackSend channel: 'C04A9BDSUFM', failOnError: true, message: '[${CHANGE_AUTHOR}][${JOB_NAME}][buildTool]'
+               slackSend channel: 'C04A9BDSUFM', message: '[${CHANGE_AUTHOR}][${JOB_NAME}][buildTool]' 
+            }
+        }
     }
  }
