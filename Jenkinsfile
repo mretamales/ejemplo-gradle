@@ -43,7 +43,7 @@ pipeline {
                     maven_script.buildStep();
                 }
             }
-        }
+        }"""
         stage('Sonar (Gradle)') {
             when {
                 expression {
@@ -71,7 +71,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }"""
         stage('Run & Test (Gradle)') {
             when {
                 expression {
@@ -95,7 +95,7 @@ pipeline {
                     maven_script.runAndTestStep();
                 }
             }
-        }
+        }"""
         stage('Upload Nexus (Gradle)') {
             when {
                 expression {
@@ -152,8 +152,34 @@ pipeline {
         }
         stage('notification') {
             steps {
-               slackSend channel: 'C04A9BDSUFM', failOnError: true, message: "'${CHANGE_AUTHOR} ${JOB_NAME} params.Dependencies_Builder'"
-               slackSend channel: 'C04A9BDSUFM', message: "'${CHANGE_AUTHOR} ${JOB_NAME} params.Dependencies_Builder'"
+               slackSend channel: 'C04A9BDSUFM', failOnError: true, message: "${env.CHANGE_AUTHOR} ${env.JOB_NAME} params.Dependencies_Builder"
+               slackSend channel: 'C04A9BDSUFM', message: "${env.CHANGE_AUTHOR} ${env.JOB_NAME} params.Dependencies_Builder"
+            }
+        } """
+        stage('Build Image (Maven)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'maven'
+                }
+            }
+            steps {
+                script {
+                    maven_script.buildDockerImage();
+                }
+            }
+        }
+        stage('Push Image (Maven)') {
+            when {
+                expression {
+                    params.Dependencies_Builder == 'maven'
+                }
+            }
+            steps {
+                withDockerRegistry([ credentialsId: "dockerhubaccount", url: "" ]) {
+                    script {
+                        maven_script.pushDockerImageToDockerHub();
+                    }
+                }
             }
         }
     }

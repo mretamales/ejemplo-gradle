@@ -97,4 +97,14 @@ def downloadAndTestNexusStep() {
     sh """curl -X GET -u $USER:$PASS http://${env.NEXUS_SERVER}/repository/${env.NEXUS_REPOSITORY}/${groupIdPath}/${pom.artifactId}/${pom.version}/${pom.artifactId}-${pom.version}.${pom.packaging} -O"""
     echo ".....artifact downloaded successfully"
 }
+def buildDockerImage() {
+    pom = readMavenPom file: "pom.xml";
+    dockerImage = docker.build("r3ta/${pom.artifactId}:${pom.version}")
+}
+
+def pushDockerImageToDockerHub() {
+    dockerImage.push()
+}
+
+
 return this;
