@@ -1,9 +1,24 @@
-FROM openjre:11-jre-slim
+# First stage: complete build environment
+FROM maven:3.5.0-jdk-8-alpine AS builder
 
-WORKDIR /app
+# add pom.xml
+ADD ./pom.xml pom.xml
 
-COPY build/DevOpsUsach2020-0.0.1.jar /app/DevOpsUsach2020-0.0.1.jar
-COPY script/initializer.sh .
-EXPOSE 9002
+# add source code
+ADD ./src src/
 
-CMD ["sh", "./initializer.sh"]
+# package jar
+RUN mvn clean package
+
+# print target content
+RUN ls -all build/
+
+# Second stage: minimal runtime environment
+FROM openjdk:8-jre-alpine
+
+# copy jar from the first stage
+COPY --from=builder build/DevOpsUsach2020-0.0.1.jar DevOpsUsach2020-0.0.1.jar
+
+EXPOSE 8080
+
+CMD ["java", "-jar", "DevOpsUsach2020-0.0.1.jar"]
