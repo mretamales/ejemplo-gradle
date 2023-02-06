@@ -16,6 +16,9 @@ RUN ls -all build/
 # Second stage: minimal runtime environment
 FROM openjdk:8-jre-alpine
 
+# Install curl
+RUN apk --no-cache add curl
+
 # copy jar from the first stage
 COPY --from=builder build/DevOpsUsach2020-0.0.1.jar DevOpsUsach2020-0.0.1.jar
 
